@@ -39,6 +39,7 @@ class GameViewer:
             K_SPACE: False,
         }
         self.ground_contact = False
+        self.last_jump_time = 0
         
         # Clock for consistent framerate
         self.clock = pygame.time.Clock()
@@ -188,12 +189,16 @@ class GameViewer:
     def _update_physics(self):
         movement_acceleration = np.array([0.0, 0.0, -self.settings.movement.gravity], dtype=float)
         
+        current_time = pygame.time.get_ticks() / 1000  # Convert to seconds
+        can_jump = (current_time - self.last_jump_time) >= self.settings.movement.jump_cooldown
+        
         # Handle jumping
-        if (self.keys_pressed[K_SPACE] or self.keys_pressed[K_w]) and self.ground_contact:
+        if (self.keys_pressed[K_SPACE] or self.keys_pressed[K_w]) and self.ground_contact and can_jump:
             self.velocity[2] = self.settings.movement.jump_velocity
             self.ground_contact = False
             self.assets.play_sound('jump')
             self.points -= self.jump_penalty
+            self.last_jump_time = current_time
 
         if self.keys_pressed[K_s]:
             movement_acceleration[2] -= self.settings.movement.acceleration
