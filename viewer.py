@@ -22,7 +22,7 @@ class GameViewer:
         self.assets.play_game_music()
         self.return_to_main_menu = False
         self.state = GameState.GAME
-        self.menu = MenuManager(level_manager, assets, in_game=True)
+        self.menu = MenuManager(level_manager, assets, high_score_manager, in_game=True)
         
         # State
         self.running = True

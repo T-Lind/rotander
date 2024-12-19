@@ -22,7 +22,7 @@ def main():
 
     while running:
         if level_manager.current_level is None:
-            menu = MenuManager(level_manager, assets)
+            menu = MenuManager(level_manager, assets, high_score_manager)
             selected_option = menu.run()
             username = menu.username
             if selected_option == 'Start Game':
