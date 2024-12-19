@@ -8,13 +8,16 @@ from renderer import Renderer
 from level_manager import LevelManager, GameState
 from menu_manager import MenuManager
 from asset_manager import AssetManager
+from high_score_manager import HighScoreManager
 
 class GameViewer:
-    def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager):
+    def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager, username: str, high_score_manager: HighScoreManager, total_score: int):
         self.settings = settings
         self.level_manager = level_manager
         self.renderer = Renderer(settings, assets)
         self.geometry = GeometryHelper()
+        self.username = username
+        self.high_score_manager = high_score_manager
         self.assets = assets
         self.assets.play_game_music()
         self.return_to_main_menu = False
@@ -48,6 +51,7 @@ class GameViewer:
         self.user_pos = self.spawn_position.copy()
         self.target_pulse_time = 0
 
+        self.total_score = total_score
         self.points = 10000
         self.points_decrease_rate = 1
         self.jump_penalty = 100
@@ -60,6 +64,34 @@ class GameViewer:
             self._reset_player()
             self.assets.play_sound('death')
             self.points -= self.death_penalty
+
+    def _handle_elim(self):
+        """Handle player's elimination"""
+        self.assets.stop_music()
+        self.assets.play_sound('death')
+        
+        # Check if this is a high score -- note this has to be 0 points, so just refer to total_score in elim case
+        current_high_score = self.high_score_manager.high_scores.get(self.username, 0)
+        is_high_score = self.total_score > current_high_score
+        
+        self.renderer.render_elimination_message(self.total_score, is_high_score)
+        self.high_score_manager.add_score(self.username, self.total_score)
+        
+        # Wait for space key
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in (pygame.K_SPACE, pygame.K_RETURN):
+                        waiting = False
+            self.clock.tick(30)
+        
+        self.running = False
+        self.level_complete = False
+        self.return_to_main_menu = True
             
     def _reset_player(self):
         """Reset player to spawn position"""
@@ -69,7 +101,7 @@ class GameViewer:
         
     def _update_target_pulse(self):
         """Update target pulsing animation"""
-        self.target_pulse_time += 1/60  # Assuming 60 FPS
+        self.target_pulse_time += 1/30  # Assuming 60 FPS
         pulse_factor = (np.sin(self.target_pulse_time * 2 * np.pi * 
                         self.settings.gameplay.target_pulse_rate) + 1) / 2
         self.current_pulse_factor = pulse_factor
@@ -99,6 +131,7 @@ class GameViewer:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+                self.high_score_manager.add_score(self.username, self.total_score + self.points)
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
@@ -144,12 +177,9 @@ class GameViewer:
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+                if event.type == pygame.KEYDOWN:
                     waiting = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        waiting = False
+            self.clock.tick(30)
         self.level_complete = True
         self.running = False
 
@@ -163,6 +193,7 @@ class GameViewer:
             self.velocity[2] = self.settings.movement.jump_velocity
             self.ground_contact = False
             self.assets.play_sound('jump')
+            self.points -= self.jump_penalty
 
         if self.keys_pressed[K_s]:
             movement_acceleration[2] -= self.settings.movement.acceleration
@@ -243,6 +274,7 @@ class GameViewer:
             self.points -= self.points_decrease_rate
             if self.points < 0:
                 self.points = 0
+                self._handle_elim()
 
     def _render(self):
         self.renderer.clear_screen()

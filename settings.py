@@ -36,8 +36,8 @@ class GameplaySettings:
     fall_threshold: float = -10.0  # Y position that triggers reset
     spawn_position: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     target_color: Tuple[int, int, int] = (0, 255, 0)
-    target_pulse_rate: float = 0.1  # Seconds per pulse
-    target_pulse_magnitude: float = 0.3  # Color intensity variation
+    target_pulse_rate: float = 0.2  # Seconds per pulse
+    target_pulse_magnitude: float = 0.6  # Color intensity variation
 
 class Settings:
     def __init__(self, config_path: Optional[str] = None):

@@ -5,6 +5,7 @@ from settings import Settings
 from viewer import GameViewer
 from menu_manager import MenuManager
 from asset_manager import AssetManager
+from high_score_manager import HighScoreManager
 
 def main():
     pygame.init()
@@ -14,21 +15,31 @@ def main():
     assets = AssetManager()
     assets.play_menu_music()
     level_manager = LevelManager()
+    high_score_manager = HighScoreManager()
     running = True
+    username = ""
+    total_score = 0  # Initialize total score
 
     while running:
         if level_manager.current_level is None:
             menu = MenuManager(level_manager, assets)
-            selected_level = menu.run()
-            level_manager.current_level = selected_level
+            selected_option = menu.run()
+            username = menu.username  # Get username from menu
+            if selected_option == 'Start Game':
+                level_manager.current_level = 1  # Start from level 1
+            elif selected_option == 'Exit':
+                running = False
+                continue
 
         level_path = level_manager.get_current_level_path()
         try:
             settings = Settings(config_path=level_path)
-            viewer = GameViewer(settings, level_manager, assets)
+            viewer = GameViewer(settings, level_manager, assets, username, high_score_manager, total_score)
             viewer.run()
+            total_score += viewer.points  # Update total score after level
             if viewer.return_to_main_menu:
                 level_manager.current_level = None
+                total_score = 0  # Reset total score if returning to main menu
             elif viewer.level_complete:
                 if level_manager.has_next_level():
                     level_manager.advance_level()
@@ -40,6 +51,7 @@ def main():
             print(f"Error: {e}", file=sys.stderr)
             running = False
 
+    high_score_manager.save_high_scores()  # Ensure scores are saved
     pygame.quit()
     sys.exit()
 

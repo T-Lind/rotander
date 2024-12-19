@@ -149,6 +149,41 @@ class Renderer:
                                                     self.settings.display.window_size[1]/2 + 20))
         self.screen.blit(continue_text, continue_rect)
 
+    def render_elimination_message(self, points: int, is_high_score: bool):
+        """Draw centered elimination message overlay and score info"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface(self.settings.display.window_size)
+        overlay.set_alpha(128)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0,0))
+        
+        # Elimination message
+        text = self.font[48].render("ELIMINATED", True, (255, 0, 0))
+        text_rect = text.get_rect(center=(self.settings.display.window_size[0]/2,
+                                        self.settings.display.window_size[1]/2 - 80))
+        self.screen.blit(text, text_rect)
+        
+        # Final score
+        score_text = self.font[24].render(f"Final Score: {points}", True, (255, 255, 255))
+        score_rect = score_text.get_rect(center=(self.settings.display.window_size[0]/2,
+                                               self.settings.display.window_size[1]/2 - 20))
+        self.screen.blit(score_text, score_rect)
+
+        # High score message if applicable
+        if is_high_score:
+            hs_text = self.font[24].render("NEW HIGH SCORE!", True, (255, 215, 0))
+            hs_rect = hs_text.get_rect(center=(self.settings.display.window_size[0]/2,
+                                             self.settings.display.window_size[1]/2 + 20))
+            self.screen.blit(hs_text, hs_rect)
+        
+        # Continue instruction
+        continue_text = self.font[24].render("Press Space to Continue", True, (255, 255, 255))
+        continue_rect = continue_text.get_rect(center=(self.settings.display.window_size[0]/2,
+                                                    self.settings.display.window_size[1]/2 + 60))
+        self.screen.blit(continue_text, continue_rect)
+        
+        self.update_display()
+
     def draw_level_info(self, level_name: str, level_number: int):
         """Draw level information in top-right corner"""
         text = f"Level {level_number}: {level_name}"
