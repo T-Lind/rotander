@@ -10,7 +10,7 @@ class Renderer:
         pygame.init()
         self.settings = settings
         self.screen = pygame.display.set_mode(settings.display.window_size)
-        pygame.display.set_caption("Vertical Plane Slice Viewer")
+        pygame.display.set_caption("Rotander")
         self.assets = assets
         self.font = {
             8: self.assets.get_font('pixel_8'),

@@ -9,13 +9,14 @@ from level_manager import LevelManager, GameState
 from menu_manager import MenuManager
 from asset_manager import AssetManager
 
-class PlaneSliceViewer:
+class GameViewer:
     def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager):
         self.settings = settings
         self.level_manager = level_manager
         self.renderer = Renderer(settings, assets)
         self.geometry = GeometryHelper()
         self.assets = assets
+        self.assets.play_game_music()
         self.return_to_main_menu = False
         self.state = GameState.GAME
         self.menu = MenuManager(level_manager, assets, in_game=True)
@@ -50,7 +51,8 @@ class PlaneSliceViewer:
         self.points = 10000
         self.points_decrease_rate = 1
         self.jump_penalty = 100
-        self.death_penalty = 1000
+        self.death_penalty = 1500
+
                 
     def _check_fall_condition(self):
         """Check if player has fallen below threshold"""
@@ -136,17 +138,18 @@ class PlaneSliceViewer:
 
     def _handle_level_completion(self):
         self.renderer.render_win_message()
+        self.assets.stop_music()
+        self.assets.play_sound('complete')
         self.renderer.update_display()
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    waiting = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
                         waiting = False
-                elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-            pygame.time.delay(100)
         self.level_complete = True
         self.running = False
 
@@ -257,19 +260,15 @@ class PlaneSliceViewer:
                 edges = self.intersection_edges[i]
                 self.renderer.draw_pulsing_target(coords, edges, pulse_factor)
         
-    
-
         self.renderer.draw_origin_marker()
         self.renderer.draw_user()
-        # Debug visualization
-        # user_hull = self.geometry.get_user_convex_hull(self.user_pos, self.plane_angle, self.settings)
-        # shape_hulls = [self.geometry.get_convex_hull(shape, self.user_pos, self.plane_angle) for shape in self.settings.shapes]
-        # self.renderer.draw_debug_hulls(user_hull, shape_hulls)
 
-        if self.level_complete:
-            self.renderer._render_win_message()
-        
         self.renderer.draw_status_text(self.user_pos, self.plane_angle, self.points)
+        
+        # Handle level completion before final display update
+        if self.level_complete:
+            self._handle_level_completion()
+        
         self.renderer.update_display()
 
     def run(self):

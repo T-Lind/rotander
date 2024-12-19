@@ -5,6 +5,7 @@ class AssetManager:
     def __init__(self):
         self.fonts = {}
         self.sounds = {}
+        self.current_music = None
         self.base_path = os.path.join(os.path.dirname(__file__), 'assets')
         
         # Verify directory structure
@@ -60,6 +61,19 @@ class AssetManager:
         if sound := self.sounds.get(name):
             sound.play()
             
-    def play_music(self):
-        if music := self.sounds.get('music'):
-            music.play(-1)  # Loop indefinitely
+    def stop_music(self):
+        if self.current_music:
+            self.current_music.stop()
+        self.current_music = None
+            
+    def play_menu_music(self):
+        if menu_music := self.sounds.get('menu'):
+            self.stop_music()
+            menu_music.play(-1)
+            self.current_music = menu_music
+
+    def play_game_music(self):
+        if game_music := self.sounds.get('music'):
+            self.stop_music()
+            game_music.play(-1)
+            self.current_music = game_music

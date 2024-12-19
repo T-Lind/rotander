@@ -23,6 +23,7 @@ class MenuManager:
 
 
     def run_pause_menu(self):
+        self.assets.play_menu_music()
         self.resume_game = False
         self.return_to_main = False
         self.running = True  # Reset running state
@@ -32,6 +33,8 @@ class MenuManager:
             self._render_pause_menu()
             pygame.display.flip()
             clock.tick(60)
+        if self.resume_game:
+            self.assets.play_game_music()
 
     def _handle_pause_events(self):
         for event in pygame.event.get():
@@ -73,6 +76,7 @@ class MenuManager:
             self._render()
             pygame.display.flip()
             clock.tick(60)
+        self.assets.play_game_music()
         return int(self.options[self.selected_index])
 
     def _handle_events(self):

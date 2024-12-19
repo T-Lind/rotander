@@ -2,7 +2,7 @@ import sys
 import pygame
 from level_manager import LevelManager
 from settings import Settings
-from viewer import PlaneSliceViewer
+from viewer import GameViewer
 from menu_manager import MenuManager
 from asset_manager import AssetManager
 
@@ -12,7 +12,7 @@ def main():
     pygame.display.set_caption("Rotander")
 
     assets = AssetManager()
-    assets.play_music()
+    assets.play_menu_music()
     level_manager = LevelManager()
     running = True
 
@@ -25,7 +25,7 @@ def main():
         level_path = level_manager.get_current_level_path()
         try:
             settings = Settings(config_path=level_path)
-            viewer = PlaneSliceViewer(settings, level_manager, assets)
+            viewer = GameViewer(settings, level_manager, assets)
             viewer.run()
             if viewer.return_to_main_menu:
                 level_manager.current_level = None
