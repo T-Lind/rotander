@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 import os
 
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class DisplaySettings:
     pixels_per_unit: float
     background_color: Tuple[int, int, int]
@@ -11,6 +11,7 @@ class DisplaySettings:
     user_color: Tuple[int, int, int]
     default_shape_color: List[int]
     window_size: Tuple[int, int]
+    windowed_size: Tuple[int, int] = (800, 600)
     
 @dataclass(frozen=True)
 class MovementSettings:

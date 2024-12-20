@@ -136,7 +136,7 @@ class MenuManager:
                 "Controls:",
                 "A/D - Move left/right",
                 "SPACE/W - Jump",
-                "Mouse Wheel - Rotate level",
+                "Mouse Wheel - Rotate plane",
                 "ESC - Pause game",
                 "",
                 "Gameplay:",
@@ -204,7 +204,7 @@ class MenuManager:
                 y_pos += 50
             
             # Back instruction
-            back_text = self.font.render("Press ESC/SPACE/ENTER to return", True, (100, 100, 100))
+            back_text = self.sm_font.render("Press ESC/SPACE/ENTER to return", True, (100, 100, 100))
             back_rect = back_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 50))
             self.screen.blit(back_text, back_rect)
             

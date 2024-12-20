@@ -9,8 +9,22 @@ from high_score_manager import HighScoreManager
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    # Store original window size
+    windowed_size = (800, 600)
+    screen = pygame.display.set_mode(windowed_size, pygame.RESIZABLE)
     pygame.display.set_caption("Rotander")
+    
+    is_fullscreen = False
+
+    def toggle_fullscreen():
+        nonlocal screen, is_fullscreen
+        if is_fullscreen:
+            screen = pygame.display.set_mode(windowed_size, pygame.RESIZABLE)
+            is_fullscreen = False
+        else:
+            screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            is_fullscreen = True
+    
 
     assets = AssetManager()
     assets.play_menu_music()
@@ -34,6 +48,7 @@ def main():
         level_path = level_manager.get_current_level_path()
         try:
             settings = Settings(config_path=level_path)
+            settings.display.window_size = pygame.display.get_surface().get_size()
             viewer = GameViewer(settings, level_manager, assets, username, high_score_manager, total_score)
             viewer.run()
             total_score += viewer.points
@@ -62,6 +77,9 @@ def main():
                             elif event.type == pygame.KEYDOWN:
                                 if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                                     waiting = False
+                                if event.key == pygame.K_F11 or (event.key == pygame.K_RETURN and event.mod & pygame.KMOD_ALT):
+                                    toggle_fullscreen()
+                    
                         pygame.time.Clock().tick(30)
                         
                     level_manager.current_level = None
