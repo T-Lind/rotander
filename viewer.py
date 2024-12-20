@@ -17,6 +17,18 @@ class GameViewer:
         self.level_manager = level_manager
         self.renderer = Renderer(settings, assets)
         self.geometry = GeometryHelper()
+
+        # Initialize enemies
+        self.enemies = []
+        for enemy_data in settings.enemies:
+            enemy = {
+                'position': np.array(enemy_data['position'], dtype=float),
+                'size': enemy_data.get('size', 1.0),
+                'speed': enemy_data.get('speed', 0.1),
+                'shape': self._create_enemy_shape(enemy_data)
+            }
+            self.enemies.append(enemy)
+
         self.username = username
         self.high_score_manager = high_score_manager
         self.assets = assets
@@ -59,6 +71,33 @@ class GameViewer:
         self.jump_penalty = 100
         self.death_penalty = 1500
 
+    def _create_enemy_shape(self, enemy_data: dict) -> dict:
+        """Create a cube shape for the enemy."""
+        size = enemy_data.get('size', 1.0)
+        half_size = size / 2.0
+        px, py, pz = enemy_data['position']
+        points = [
+            [px - half_size, py - half_size, pz - half_size],
+            [px + half_size, py - half_size, pz - half_size],
+            [px + half_size, py + half_size, pz - half_size],
+            [px - half_size, py + half_size, pz - half_size],
+            [px - half_size, py - half_size, pz + half_size],
+            [px + half_size, py - half_size, pz + half_size],
+            [px + half_size, py + half_size, pz + half_size],
+            [px - half_size, py + half_size, pz + half_size],
+        ]
+        edges = [
+            [0, 1], [1, 2], [2, 3], [3, 0],
+            [4, 5], [5, 6], [6, 7], [7, 4],
+            [0, 4], [1, 5], [2, 6], [3, 7],
+        ]
+        return {
+            'name': 'Enemy',
+            'points': points,
+            'edges': edges,
+            'color': {'r': 1.0, 'g': 0.0, 'b': 0.0},  # Red color
+            'is_enemy': True  # Mark as enemy
+        }
                 
     def _check_fall_condition(self):
         """Check if player has fallen below threshold"""
@@ -271,12 +310,82 @@ class GameViewer:
             self.intersection_coords_2D.append(points_2d)
             self.intersection_edges.append(edges)
 
+        # Compute intersections for enemies
+        self.enemy_intersections = []
+        for enemy in self.enemies:
+            points_2d, edges_2d = self.geometry.compute_intersections(
+                enemy['shape'],
+                self.user_pos,
+                self.plane_angle
+            )
+            self.enemy_intersections.append({
+                'points_2d': points_2d,
+                'edges_2d': edges_2d,
+                'color': self.settings.get_shape_color(enemy['shape']),
+                'enemy': enemy
+            })
+
+    def _check_enemy_collisions(self):
+        """Check for collisions between the player and enemies."""
+        user_hull = self.geometry.get_user_convex_hull(
+            self.user_pos, self.plane_angle, self.settings)
+        for enemy_data in self.enemy_intersections:
+            enemy_hull = self.geometry.get_convex_hull(
+                enemy_data['enemy']['shape'], self.user_pos, self.plane_angle)
+            collision = self.geometry.check_collision(user_hull, enemy_hull)
+            if collision:
+                self._handle_death()
+                break
+
+    def _update_enemies(self):
+        """Move enemies towards the player."""
+        for enemy in self.enemies:
+            direction = self.user_pos - enemy['position']
+            distance = np.linalg.norm(direction)
+            if distance > 0:
+                direction /= distance  # Normalize
+                enemy['position'] += direction * enemy['speed']
+                # Update enemy shape points
+                self._update_enemy_shape(enemy)
+
+    def _update_enemy_shape(self, enemy):
+        """Update the enemy's shape points based on its new position."""
+        size = enemy['size']
+        half_size = size / 2.0
+        px, py, pz = enemy['position']
+        points = [
+            [px - half_size, py - half_size, pz - half_size],
+            [px + half_size, py - half_size, pz - half_size],
+            [px + half_size, py + half_size, pz - half_size],
+            [px - half_size, py + half_size, pz - half_size],
+            [px - half_size, py - half_size, pz + half_size],
+            [px + half_size, py - half_size, pz + half_size],
+            [px + half_size, py + half_size, pz + half_size],
+            [px - half_size, py + half_size, pz + half_size],
+        ]
+        enemy['shape']['points'] = points
+
+    def _handle_death(self):
+        """Handle player's death when colliding with an enemy."""
+        self._reset_player()
+        self.assets.play_sound('death')
+        self.points -= self.death_penalty
+
     def _update(self):
         dt = 1/60  # Fixed timestep
         if not self.level_complete:
             self._update_physics()
             self._check_fall_condition()
+            self._update_enemies()
+            self._check_enemy_collisions()
             self._update_target_pulse()
+            
+            # Calculate minimum distance to enemies
+            self.min_distance_enemy = "N/A"
+            if self.enemies:
+                distances = [np.linalg.norm(self.user_pos - enemy['position']) for enemy in self.enemies]
+                self.min_distance_enemy = f"{min(distances):.2f}"
+            
             self.points -= self.settings.gameplay.points_decrease_rate
             if self.points < 0:
                 self.points = 0
@@ -287,6 +396,8 @@ class GameViewer:
         self.renderer.draw_shapes(self.settings.shapes,
                                 self.intersection_coords_2D,
                                 self.intersection_edges)
+        
+        self.renderer.draw_enemies(self.enemy_intersections)
         
         # Target shapes with pulsing border
         target_shapes = [s for s in self.settings.shapes if s.get('is_target')]
@@ -301,7 +412,12 @@ class GameViewer:
         self.renderer.draw_origin_marker()
         self.renderer.draw_user()
 
-        self.renderer.draw_status_text(self.user_pos, self.plane_angle, self.points)
+        self.renderer.draw_status_text(
+            self.user_pos,
+            self.plane_angle,
+            self.points,
+            self.min_distance_enemy
+        )
         
         # Handle level completion before final display update
         if self.level_complete:

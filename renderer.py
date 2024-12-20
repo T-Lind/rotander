@@ -73,6 +73,45 @@ class Renderer:
         except:
             pass
 
+    def draw_enemies(self, enemies_intersections: List[dict]):
+        """Draw enemy shapes."""
+        for enemy_data in enemies_intersections:
+            coords_2d = enemy_data['points_2d']
+            if len(coords_2d) >= 3:
+                try:
+                    hull = ConvexHull(coords_2d)
+                    hull_indices = hull.vertices
+                    polygon = [coords_2d[j] for j in hull_indices]
+                    
+                    # Convert to screen coordinates
+                    polygon_screen = [self._to_screen_coords(pt) for pt in polygon]
+                    
+                    # Draw solid red polygon without outline
+                    pygame.draw.polygon(self.screen, (255, 0, 0), polygon_screen, 0)
+                except:
+                    pass
+
+    def _draw_shape(self, coords_2d: List[Tuple[float, float]], edges: List[Tuple[int, int]], color: Tuple[int, int, int]):
+        """Helper method to draw shapes and enemies."""
+        # Convert to screen coordinates
+        screen_coords = [self._to_screen_coords(pt) for pt in coords_2d]
+        # Draw edges
+        for edge in edges:
+            start_idx, end_idx = edge
+            if start_idx < len(screen_coords) and end_idx < len(screen_coords):
+                pygame.draw.line(
+                    self.screen, color,
+                    screen_coords[start_idx],
+                    screen_coords[end_idx],
+                    2
+                )
+        # Optionally, fill the shape if it's closed
+        if len(screen_coords) >= 3:
+            try:
+                pygame.draw.polygon(self.screen, color, screen_coords, 0)
+            except:
+                pass
+
     def _draw_line_segment(self, pt1: Tuple[float, float], pt2: Tuple[float, float], 
                           color: Tuple[int, int, int]):
         screen_pt1 = self._to_screen_coords(pt1)
@@ -114,7 +153,7 @@ class Renderer:
         angle_degrees = np.degrees(plane_angle) % 360
         angle_text = f"Plane Angle: {angle_degrees:.1f}°"
         points_text = f"Points: {points}"
-        min_distance_text = f"Distance to Nearest Enemy: {min_distance_enemy:.2f}"
+        min_distance_text = f"Distance to Nearest Enemy: {min_distance_enemy}"
 
         text_surface1 = self.font[8].render(coord_text, True, (255, 255, 255))
         text_surface2 = self.font[8].render(angle_text, True, (255, 255, 255))
