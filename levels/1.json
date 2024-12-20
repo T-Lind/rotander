@@ -79,6 +79,12 @@
         "is_target": false
     }
     ],
+    "enemies": [
+        {
+            "type": "cube",
+            "position": [5.0, 0.0, 0.0]
+        }
+    ],
     "settings": {
       "pixels_per_unit": 100.0,
       "background_color": [30, 30, 30],

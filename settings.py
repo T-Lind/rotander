@@ -67,6 +67,7 @@ class Settings:
         self.gameplay = GameplaySettings()
         self.movement = MovementSettings()
         self.shapes = self.config_data.get('shapes', [])
+        self.enemies = self.config_data.get('enemies', [])
 
     def _load_config(self) -> dict:
         try:

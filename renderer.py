@@ -109,19 +109,22 @@ class Renderer:
         pygame.draw.rect(self.screen, (0, 0, 0), 
                         (rect_x, rect_y, width, height), 1)
 
-    def draw_status_text(self, user_pos: np.ndarray, plane_angle: float, points: int):
+    def draw_status_text(self, user_pos: np.ndarray, plane_angle: float, points: int, min_distance_enemy = "N/A"):
         coord_text = f"User Position: (X: {user_pos[0]:.2f}, Y: {user_pos[1]:.2f}, Z: {user_pos[2]:.2f})"
         angle_degrees = np.degrees(plane_angle) % 360
         angle_text = f"Plane Angle: {angle_degrees:.1f}°"
         points_text = f"Points: {points}"
+        min_distance_text = f"Distance to Nearest Enemy: {min_distance_enemy:.2f}"
 
         text_surface1 = self.font[8].render(coord_text, True, (255, 255, 255))
         text_surface2 = self.font[8].render(angle_text, True, (255, 255, 255))
         text_surface3 = self.font[8].render(points_text, True, (255, 255, 255))
+        text_surface4 = self.font[8].render(min_distance_text, True, (255, 255, 255))
         
         self.screen.blit(text_surface1, (10, 10))
         self.screen.blit(text_surface2, (10, 20))
         self.screen.blit(text_surface3, (10, 30))
+        self.screen.blit(text_surface4, (10, 40))
 
     def render_win_message(self):
         """Draw centered win message overlay and wait for input"""
