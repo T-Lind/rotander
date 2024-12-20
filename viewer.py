@@ -54,6 +54,7 @@ class GameViewer:
         self.ground_contact = False
         self.last_jump_time = 0
         self.is_jumping = False
+        self.jump_direction = 'up'  # Can be 'up', 'left', or 'right'
         
         # Clock for consistent framerate
         self.clock = pygame.time.Clock()
@@ -268,6 +269,18 @@ class GameViewer:
         # Apply friction
         self.velocity *= self.settings.movement.friction
 
+        # Update jump direction based on velocity
+        if self.is_jumping:
+            # Project velocity onto plane
+            p_x = np.array([-np.sin(self.plane_angle), np.cos(self.plane_angle), 0.0], dtype=float)
+            horizontal_velocity = np.dot(self.velocity, p_x)
+            
+            if abs(horizontal_velocity) < 0.1:
+                self.jump_direction = 'up'
+            else:
+                self.jump_direction = 'right' if horizontal_velocity > 0 else 'left'
+
+
         # Store previous position
         previous_pos = self.user_pos.copy()
         
@@ -427,7 +440,7 @@ class GameViewer:
                 self.renderer.draw_pulsing_target(coords, edges, pulse_factor)
         
         self.renderer.draw_origin_marker()
-        self.renderer.draw_user(self.is_jumping)
+        self.renderer.draw_user(self.is_jumping, self.jump_direction)
 
         self.renderer.draw_status_text(
             self.user_pos,

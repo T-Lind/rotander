@@ -4,6 +4,7 @@ from asset_manager import AssetManager
 from level_manager import LevelManager
 from high_score_manager import HighScoreManager
 from options_manager import OptionsManager
+from settings import MovementSettings
 import os
 import math
 
@@ -27,6 +28,14 @@ class MenuManager:
         self.resume_game = False
         self.return_to_main = False
         self.username = ""
+
+        # Menu animation properties
+        self.animation_time = 0
+        self.animation_speed = 2
+        self.bounce_height = 20
+        self.character_base_y = 160  # Moved up
+        self.menu_start_y = 300      # Moved up
+        self.is_jumping = False      # Track jump state
 
 
     def run_pause_menu(self):
@@ -399,14 +408,34 @@ class MenuManager:
 
     def _render_main_menu(self):
         self.screen.fill((0, 0, 0))
+        
+        # Update animation and jump state
+        self.animation_time = (self.animation_time + 0.016) % self.animation_speed
+        bounce_offset = math.sin(self.animation_time * math.pi / (self.animation_speed/2)) * self.bounce_height
+        self.is_jumping = bounce_offset > 5  # Switch to jump sprite when bouncing up
+        
+        # Draw title
         title_surface = self.title_font.render("Rotander", True, (255, 255, 255))
-        title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 100))
+        title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 80))
         self.screen.blit(title_surface, title_rect)
 
+        # Draw character sprite
+        sprite_name = 'player_jump_up' if self.is_jumping else 'player_stand'
+        sprite = self.assets.get_sprite(sprite_name)
+        if sprite:
+            scaled_width = MovementSettings.user_width_pixels * 2
+            scaled_height = MovementSettings.user_height_pixels * 2
+            scaled_sprite = pygame.transform.scale(sprite, (scaled_width, scaled_height))
+            
+            sprite_x = self.screen.get_width() // 2 - scaled_width // 2
+            sprite_y = self.character_base_y - scaled_height // 2 - bounce_offset
+            self.screen.blit(scaled_sprite, (sprite_x, sprite_y))
+
+        # Draw menu options
         for idx, option in enumerate(self.options):
             color = (255, 215, 0) if idx == self.selected_index else (255, 255, 255)
             option_surface = self.font.render(option, True, color)
-            option_rect = option_surface.get_rect(center=(self.screen.get_width() // 2, 300 + idx * 50))
+            option_rect = option_surface.get_rect(center=(self.screen.get_width() // 2, self.menu_start_y + idx * 50))
             self.screen.blit(option_surface, option_rect)
 
         pygame.display.flip()

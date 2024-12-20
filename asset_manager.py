@@ -66,7 +66,9 @@ class AssetManager:
         """Load character sprites."""
         sprite_files = {
             'player_stand': 'standing.png',
-            'player_jump': 'jumping.png'
+            'player_jump_up': 'jumping-up.png',
+            'player_jump_left': 'jumping-left.png',
+            'player_jump_right': 'jumping-right.png',
         }
         
         for name, file in sprite_files.items():
