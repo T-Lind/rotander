@@ -178,6 +178,9 @@ class GameViewer:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self._pause_game()
+                elif event.key == pygame.K_F5 and self.settings.gameplay.debug_mode:
+                    self.level_complete = True
+                    self.running = False
                 if event.key in self.keys_pressed:
                     self.keys_pressed[event.key] = True
             elif event.type == pygame.KEYUP:

@@ -54,6 +54,7 @@ class GameplaySettings:
     target_pulse_rate: float = 0.2
     target_pulse_magnitude: float = 0.6
     points_decrease_rate: float = 1.0  # Default rate if not specified in level
+    debug_mode: bool = True
 
     def __init__(self, settings_dict: dict = None):
         object.__setattr__(self, 'points_decrease_rate', 

@@ -293,6 +293,7 @@ class MenuManager:
                     "",
                     "But beware! Your energy depletes with time,",
                     "and each jump brings you closer to exhaustion.",
+                    "Enemies will also attempt to thwart your progress.",
                     "",
                     "Can you master the art of dimensional rotation",
                     "& complete your mission before your energy fades?"
@@ -329,7 +330,7 @@ class MenuManager:
                     "- Don't fall off or run out of points",
                     "- Jumping costs points",
                     "- Points decrease over time",
-                    "- Falling causes point penalty",
+                    "- Falling & enemies causes point penalty",
                     "- Complete all levels for ultimate victory!",
                 ]
                 
