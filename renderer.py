@@ -164,7 +164,7 @@ class Renderer:
         self.screen.blit(text, text_rect)
         
         # Final score
-        score_text = self.font[24].render(f"Final Score: {points}", True, (255, 255, 255))
+        score_text = self.font[24].render(f"Final Score: {int(points)}", True, (255, 255, 255))
         score_rect = score_text.get_rect(center=(self.settings.display.window_size[0]/2,
                                                self.settings.display.window_size[1]/2 - 20))
         self.screen.blit(score_text, score_rect)
@@ -198,7 +198,7 @@ class Renderer:
         self.screen.blit(text, text_rect)
         
         # Final score
-        score_text = self.font[24].render(f"Final Score: {total_score}", True, (255, 255, 255))
+        score_text = self.font[24].render(f"Final Score: {int(total_score)}", True, (255, 255, 255))
         score_rect = score_text.get_rect(center=(self.settings.display.window_size[0]/2,
                                                self.settings.display.window_size[1]/2 - 20))
         self.screen.blit(score_text, score_rect)

@@ -35,15 +35,20 @@ class MovementSettings:
     
 @dataclass(frozen=True)
 class GameplaySettings:
-    fall_threshold: float = -10.0  # Y position that triggers reset
+    fall_threshold: float = -10.0
     spawn_position: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     target_color: Tuple[int, int, int] = (0, 255, 0)
-    target_pulse_rate: float = 0.2  # Seconds per pulse
-    target_pulse_magnitude: float = 0.6  # Color intensity variation
+    target_pulse_rate: float = 0.2
+    target_pulse_magnitude: float = 0.6
+    points_decrease_rate: float = 1.0  # Default rate if not specified in level
+
+    def __init__(self, settings_dict: dict = None):
+        object.__setattr__(self, 'points_decrease_rate', 
+                          float(settings_dict.get('points_decrease_rate', 1.0)) if settings_dict else 1.0)
 
 class Settings:
-    def __init__(self, config_path: Optional[str] = None):
-        self.config_path = config_path or os.path.join('v5', 'shapes_config.json')
+    def __init__(self, config_path: str):
+        self.config_path = config_path
         self.config_data = self._load_config()
         self.display = self._init_display_settings()
         self.gameplay = GameplaySettings()

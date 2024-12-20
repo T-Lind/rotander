@@ -178,7 +178,7 @@ class GameViewer:
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     waiting = False
             self.clock.tick(30)
         self.level_complete = True
@@ -276,7 +276,7 @@ class GameViewer:
             self._update_physics()
             self._check_fall_condition()
             self._update_target_pulse()
-            self.points -= self.points_decrease_rate
+            self.points -= self.settings.gameplay.points_decrease_rate
             if self.points < 0:
                 self.points = 0
                 self._handle_elim()

@@ -97,9 +97,12 @@ class MenuManager:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         self.selected_index = (self.selected_index - 1) % len(self.options)
+                        self.assets.play_sound('highlight')
                     elif event.key == pygame.K_DOWN:
                         self.selected_index = (self.selected_index + 1) % len(self.options)
+                        self.assets.play_sound('highlight')
                     elif event.key == pygame.K_RETURN:
+                        self.assets.play_sound('select')
                         if self.options[self.selected_index] == 'Start Game':
                             self.running = False
                         elif self.options[self.selected_index] == 'Read This':
@@ -115,50 +118,93 @@ class MenuManager:
 
     def _show_instructions(self):
         waiting = True
+        current_page = 1
         while waiting:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
                 elif event.type == pygame.KEYDOWN:
-                    if event.key in (pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE):
+                    if event.key == pygame.K_ESCAPE:
+                        self.assets.play_sound('select')
                         waiting = False
+                    elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                        self.assets.play_sound('select')
+                        if current_page == 1:
+                            current_page = 2
+                        else:
+                            waiting = False
 
             self.screen.fill((0, 0, 0))
             
-            # Title
-            title = self.title_font.render("How to Play", True, (255, 215, 0))
-            title_rect = title.get_rect(center=(self.screen.get_width() // 2, 80))
-            self.screen.blit(title, title_rect)
+            if current_page == 1:
+                # Title
+                title = self.title_font.render("The Story", True, (255, 215, 0))
+                title_rect = title.get_rect(center=(self.screen.get_width() // 2, 80))
+                self.screen.blit(title, title_rect)
+                
+                # Scenario
+                story = [
+                    "You are a lost 2D explorer in a 3D world,",
+                    "stranded far from your home.",
+                    "",
+                    "Your mission is to reach the golden targets",
+                    "while navigating through increasingly difficult",
+                    "geometric landscapes that rotate at your command.",
+                    "",
+                    "But beware! Your energy depletes with time,",
+                    "and each jump brings you closer to exhaustion.",
+                    "",
+                    "Can you master the art of dimensional rotation",
+                    "& complete your mission before your energy fades?"
+                ]
+                
+                y_pos = 160
+                for line in story:
+                    text = self.sm_font.render(line, True, (255, 255, 255))
+                    text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_pos))
+                    self.screen.blit(text, text_rect)
+                    y_pos += 30
+                
+                # Next page instruction
+                next_text = self.sm_font.render("Press SPACE/ENTER for controls", True, (100, 100, 100))
+                next_rect = next_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 50))
+                self.screen.blit(next_text, next_rect)
             
-            # Instructions
-            instructions = [
-                "Controls:",
-                "A/D - Move left/right",
-                "SPACE/W - Jump",
-                "Mouse Wheel - Rotate plane",
-                "ESC - Pause game",
-                "",
-                "Gameplay:",
-                "- Reach the golden target to complete levels",
-                "- Don't fall off or run out of points",
-                "- Jumping costs points",
-                "- Points decrease over time",
-                "- Falling causes point penalty",
-                "- Complete all levels for ultimate victory!",
-            ]
-            
-            y_pos = 160
-            for line in instructions:
-                text = self.sm_font.render(line, True, (255, 255, 255))
-                text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_pos))
-                self.screen.blit(text, text_rect)
-                y_pos += 30
-            
-            # Back instruction
-            back_text = self.sm_font.render("Press ESC/SPACE/ENTER to return", True, (100, 100, 100))
-            back_rect = back_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 50))
-            self.screen.blit(back_text, back_rect)
+            else:  # Page 2
+                # Title
+                title = self.title_font.render("How to Play", True, (255, 215, 0))
+                title_rect = title.get_rect(center=(self.screen.get_width() // 2, 80))
+                self.screen.blit(title, title_rect)
+                
+                # Instructions
+                instructions = [
+                    "Controls:",
+                    "A/D - Move left/right",
+                    "SPACE/W - Jump",
+                    "Mouse Wheel - Rotate plane",
+                    "ESC - Pause game",
+                    "",
+                    "Gameplay:",
+                    "- Reach the golden target to complete levels",
+                    "- Don't fall off or run out of points",
+                    "- Jumping costs points",
+                    "- Points decrease over time",
+                    "- Falling causes point penalty",
+                    "- Complete all levels for ultimate victory!",
+                ]
+                
+                y_pos = 160
+                for line in instructions:
+                    text = self.sm_font.render(line, True, (255, 255, 255))
+                    text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_pos))
+                    self.screen.blit(text, text_rect)
+                    y_pos += 30
+                
+                # Back instruction
+                back_text = self.sm_font.render("Press ESC/SPACE/ENTER to return", True, (100, 100, 100))
+                back_rect = back_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 50))
+                self.screen.blit(back_text, back_rect)
             
             pygame.display.flip()
 
@@ -171,6 +217,7 @@ class MenuManager:
                     exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE):
+                        self.assets.play_sound('select')
                         waiting = False
 
             self.screen.fill((0, 0, 0))
@@ -235,10 +282,14 @@ class MenuManager:
                             exit()
                         elif event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_RETURN:
+                                self.assets.play_sound('select')
                                 input_active = False
                             elif event.key == pygame.K_BACKSPACE:
+                                self.assets.play_sound('highlight')
                                 username = username[:-1]
                             else:
+                                if len(event.unicode.strip()) > 0:  # Only play sound for actual characters
+                                    self.assets.play_sound('highlight')
                                 username += event.unicode
                     self.screen.fill((0, 0, 0))
                     prompt_surface = self.font.render("Enter Username:", True, (255, 255, 255))
