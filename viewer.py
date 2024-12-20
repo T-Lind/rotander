@@ -53,6 +53,7 @@ class GameViewer:
         }
         self.ground_contact = False
         self.last_jump_time = 0
+        self.is_jumping = False
         
         # Clock for consistent framerate
         self.clock = pygame.time.Clock()
@@ -70,6 +71,10 @@ class GameViewer:
         self.points_decrease_rate = 1
         self.jump_penalty = 100
         self.death_penalty = 1500
+
+        self.alarm_playing = False
+        self.alarm_distance = 2.0  # Distance threshold for alarm
+
 
     def _create_enemy_shape(self, enemy_data: dict) -> dict:
         """Create a cube shape for the enemy."""
@@ -109,7 +114,7 @@ class GameViewer:
     def _handle_elim(self):
         """Handle player's elimination"""
         self.assets.stop_music()
-        self.assets.play_sound('death')
+        self.assets.play_sound('elimination')
         
         # Check if this is a high score -- note this has to be 0 points, so just refer to total_score in elim case
         current_high_score = self.high_score_manager.high_scores.get(self.username, 0)
@@ -299,7 +304,7 @@ class GameViewer:
                 collision = True
                 self.ground_contact = True
                 break
-                
+        self.is_jumping = not self.ground_contact
         if collision:
             self.user_pos = previous_pos
 
@@ -387,7 +392,16 @@ class GameViewer:
             self.min_distance_enemy = "N/A"
             if self.enemies:
                 distances = [np.linalg.norm(self.user_pos - enemy['position']) for enemy in self.enemies]
-                self.min_distance_enemy = f"{min(distances):.2f}"
+                min_dist = min(distances)
+                self.min_distance_enemy = f"{min_dist:.2f}"
+
+                # Handle alarm sound
+                if min_dist <= self.alarm_distance and not self.alarm_playing:
+                    self.assets.play_sound('alarm')
+                    self.alarm_playing = True
+                elif min_dist > self.alarm_distance and self.alarm_playing:
+                    self.assets.sounds['alarm'].stop()
+                    self.alarm_playing = False
             
             self.points -= self.settings.gameplay.points_decrease_rate
             if self.points < 0:
@@ -413,7 +427,7 @@ class GameViewer:
                 self.renderer.draw_pulsing_target(coords, edges, pulse_factor)
         
         self.renderer.draw_origin_marker()
-        self.renderer.draw_user()
+        self.renderer.draw_user(self.is_jumping)
 
         self.renderer.draw_status_text(
             self.user_pos,
@@ -429,6 +443,7 @@ class GameViewer:
         self.renderer.update_display()
 
     def run(self):
+        self.assets.play_sound('spawn')
         while self.running:
             if self.state == GameState.GAME:
                 self._handle_events()

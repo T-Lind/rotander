@@ -135,18 +135,30 @@ class Renderer:
         pygame.draw.circle(self.screen, self.settings.display.origin_color, 
                          self.center_2D, 5)
         
-    def draw_user(self):
-        user_screen_pos = self.center_2D
-        width = self.settings.movement.user_width_pixels
-        height = self.settings.movement.user_height_pixels
+    def draw_user(self, is_jumping: bool):
+        """Draw the player character using sprites."""
+        sprite_name = 'player_jump' if self.assets.sprites.get('player_jump') and is_jumping else 'player_stand'
+        sprite = self.assets.get_sprite(sprite_name)
         
-        rect_x = user_screen_pos[0] - width // 2
-        rect_y = user_screen_pos[1] - height // 2
-        
-        pygame.draw.rect(self.screen, self.settings.display.user_color, 
-                        (rect_x, rect_y, width, height))
-        pygame.draw.rect(self.screen, (0, 0, 0), 
-                        (rect_x, rect_y, width, height), 1)
+        if sprite:
+            # Scale sprite
+            scaled_width = self.settings.movement.user_width_pixels
+            scaled_height = self.settings.movement.user_height_pixels
+            scaled_sprite = pygame.transform.scale(sprite, (scaled_width, scaled_height))
+            
+            # Position sprite
+            sprite_x = self.center_2D[0] - scaled_width // 2
+            sprite_y = self.center_2D[1] - scaled_height // 2
+            
+            self.screen.blit(scaled_sprite, (sprite_x, sprite_y))
+        else:
+            # Fallback to rectangle if sprites not loaded
+            rect_x = self.center_2D[0] - self.settings.movement.user_width_pixels // 2
+            rect_y = self.center_2D[1] - self.settings.movement.user_height_pixels // 2
+            pygame.draw.rect(self.screen, self.settings.display.user_color,
+                           (rect_x, rect_y, 
+                            self.settings.movement.user_width_pixels,
+                            self.settings.movement.user_height_pixels))
 
     def draw_status_text(self, user_pos: np.ndarray, plane_angle: float, points: int, min_distance_enemy = "N/A"):
         coord_text = f"User Position: (X: {user_pos[0]:.2f}, Y: {user_pos[1]:.2f}, Z: {user_pos[2]:.2f})"

@@ -64,6 +64,7 @@ def main():
                 else:
                     # Ultimate Victory!
                     assets.stop_music()
+                    assets.play_sound('victory')
                     current_high_score = high_score_manager.high_scores.get(username, 0)
                     is_high_score = total_score > current_high_score
                     viewer.renderer.render_ultimate_victory_message(total_score, is_high_score)

@@ -32,8 +32,8 @@ class MovementSettings:
     max_velocity: float = 5.0
     friction: float = 0.95
     rotate_speed: float = DEFAULT_ROTATE_SPEED
-    user_width_pixels: int = 20
-    user_height_pixels: int = 30
+    user_width_pixels: int = 20*2
+    user_height_pixels: int = 30*2
     bounce_factor: float = 0.5
     gravity: float = DEFAULT_GRAVITY
     jump_velocity: float = DEFAULT_JUMP_VELOCITY
