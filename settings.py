@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 import os
-
+import math
 @dataclass(frozen=False)
 class DisplaySettings:
     pixels_per_unit: float
@@ -13,17 +13,30 @@ class DisplaySettings:
     window_size: Tuple[int, int]
     windowed_size: Tuple[int, int] = (800, 600)
     
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class MovementSettings:
+    # Constants for min/max values
+    MIN_ROTATE_SPEED = math.pi/96  # Slowest rotation
+    MAX_ROTATE_SPEED = math.pi/24  # Fastest rotation
+    DEFAULT_ROTATE_SPEED = math.pi/48  # Default rotation (medium)
+    
+    MIN_GRAVITY = 0.005
+    MAX_GRAVITY = 0.02
+    DEFAULT_GRAVITY = 0.01
+    
+    MIN_JUMP_VELOCITY = 0.2
+    MAX_JUMP_VELOCITY = 0.4
+    DEFAULT_JUMP_VELOCITY = 0.3
+    
     acceleration: float = 0.02
     max_velocity: float = 5.0
     friction: float = 0.95
-    rotate_speed: float = 0.06545  # pi/48
+    rotate_speed: float = DEFAULT_ROTATE_SPEED
     user_width_pixels: int = 20
     user_height_pixels: int = 30
     bounce_factor: float = 0.5
-    gravity: float = 0.01
-    jump_velocity: float = 0.3
+    gravity: float = DEFAULT_GRAVITY
+    jump_velocity: float = DEFAULT_JUMP_VELOCITY
     jump_cooldown: float = 0.5
 
     def get_collision_dimensions(self, pixels_per_unit: float) -> Tuple[float, float]:

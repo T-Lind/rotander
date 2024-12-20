@@ -6,6 +6,7 @@ from viewer import GameViewer
 from menu_manager import MenuManager
 from asset_manager import AssetManager
 from high_score_manager import HighScoreManager
+from options_manager import OptionsManager
 
 def main():
     pygame.init()
@@ -28,6 +29,7 @@ def main():
 
     assets = AssetManager()
     assets.play_menu_music()
+    options_manager = OptionsManager()
     level_manager = LevelManager()
     high_score_manager = HighScoreManager()
     running = True
@@ -36,7 +38,7 @@ def main():
 
     while running:
         if level_manager.current_level is None:
-            menu = MenuManager(level_manager, assets, high_score_manager)
+            menu = MenuManager(level_manager, assets, high_score_manager, options_manager)
             selected_option = menu.run()
             username = menu.username
             if selected_option == 'Start Game':
@@ -49,7 +51,7 @@ def main():
         try:
             settings = Settings(config_path=level_path)
             settings.display.window_size = pygame.display.get_surface().get_size()
-            viewer = GameViewer(settings, level_manager, assets, username, high_score_manager, total_score)
+            viewer = GameViewer(settings, level_manager, assets, username, high_score_manager, total_score, options_manager)
             viewer.run()
             total_score += viewer.points
 

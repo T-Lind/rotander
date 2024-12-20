@@ -3,12 +3,15 @@ from typing import List
 from asset_manager import AssetManager
 from level_manager import LevelManager
 from high_score_manager import HighScoreManager
+from options_manager import OptionsManager
 import os
+import math
 
 class MenuManager:
-    def __init__(self, level_manager: LevelManager, assets: AssetManager, high_score_manager: HighScoreManager, in_game=False):
+    def __init__(self, level_manager: LevelManager, assets: AssetManager, high_score_manager: HighScoreManager, options_manager: OptionsManager, in_game=False):
         self.level_manager = level_manager
         self.high_score_manager = high_score_manager
+        self.options_manager = options_manager
         self.assets = assets
         self.in_game = in_game
         self.screen = pygame.display.get_surface()
@@ -18,7 +21,7 @@ class MenuManager:
         if self.in_game:
             self.options = ['Resume', 'Return to Main Menu']
         else:
-            self.options = ['Start Game', 'Read This', 'High Scores', 'Exit']
+            self.options = ['Start Game', 'Options', 'Read This', 'High Scores', 'Exit']
         self.selected_index = 0
         self.running = True
         self.resume_game = False
@@ -107,6 +110,8 @@ class MenuManager:
                             self.running = False
                         elif self.options[self.selected_index] == 'Read This':
                             self._show_instructions()
+                        elif self.options[self.selected_index] == 'Options':
+                            self._show_options()
                         elif self.options[self.selected_index] == 'High Scores':
                             self._show_high_scores()
                         elif self.options[self.selected_index] == 'Exit':
@@ -115,6 +120,140 @@ class MenuManager:
 
             self._render_main_menu()
             clock.tick(60)
+
+    def _show_options(self):
+        waiting = True
+        selected_option = 0
+        options_list = [
+            'Master Volume',
+            'Music Volume',
+            'Sound Effects',
+            'Rotate Speed',
+            'Gravity',
+            'Jump Power',
+            'Back'
+        ]
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        waiting = False
+                    elif event.key == pygame.K_UP:
+                        self.assets.play_sound('highlight')
+                        selected_option = (selected_option - 1) % len(options_list)
+                    elif event.key == pygame.K_DOWN:
+                        self.assets.play_sound('highlight')
+                        selected_option = (selected_option + 1) % len(options_list)
+                    elif event.key == pygame.K_LEFT:
+                        self._adjust_option(selected_option, -1)
+                    elif event.key == pygame.K_RIGHT:
+                        self._adjust_option(selected_option, 1)
+                    elif event.key == pygame.K_RETURN and options_list[selected_option] == 'Back':
+                        waiting = False
+
+            self.screen.fill((0, 0, 0))
+            
+            # Title
+            title = self.title_font.render("Options", True, (255, 215, 0))
+            title_rect = title.get_rect(center=(self.screen.get_width() // 2, 80))
+            self.screen.blit(title, title_rect)
+            
+            y_pos = 180
+            for i, option in enumerate(options_list):
+                # Option name
+                color = (255, 215, 0) if i == selected_option else (255, 255, 255)
+                text = self.sm_font.render(option, True, color)
+                text_rect = text.get_rect(x=self.screen.get_width() // 4, centery=y_pos)
+                self.screen.blit(text, text_rect)
+                
+                # Value bar for adjustable options
+                if option != 'Back':
+                    value = self._get_option_value(option)
+                    bar_width = 200
+                    bar_height = 20
+                    bar_x = self.screen.get_width() * 3 // 4 - bar_width // 2
+                    bar_y = y_pos - bar_height // 2
+                    
+                    # Background bar
+                    pygame.draw.rect(self.screen, (100, 100, 100), 
+                                   (bar_x, bar_y, bar_width, bar_height))
+                    
+                    # Value bar
+                    value_width = int(bar_width * value)
+                    pygame.draw.rect(self.screen, color,
+                                   (bar_x, bar_y, value_width, bar_height))
+                    
+                    # Value text
+                    if option == 'Rotate Speed':
+                        value_text = f"{value * 48/math.pi:.1f}"
+                    else:
+                        value_text = f"{int(value * 100)}%"
+                    text = self.sm_font.render(value_text, True, (255, 255, 255))
+                    text_rect = text.get_rect(midleft=(bar_x + bar_width + 10, y_pos))
+                    self.screen.blit(text, text_rect)
+                
+                y_pos += 50
+            
+            # Instructions
+            instructions = self.sm_font.render("← → to adjust, ESC to save & return", True, (100, 100, 100))
+            instructions_rect = instructions.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 40))
+            self.screen.blit(instructions, instructions_rect)
+            
+            pygame.display.flip()
+        
+        # Save options when leaving menu
+        self.options_manager.save_options()
+        self.options_manager.apply_volume_settings(self.assets)
+
+    def _adjust_option(self, selected_option, direction):
+        option_name = ['Master Volume', 'Music Volume', 'Sound Effects',
+                      'Rotate Speed', 'Gravity', 'Jump Power'][selected_option]
+        
+        if option_name in ['Master Volume', 'Music Volume', 'Sound Effects']:
+            current = self._get_option_value(option_name)
+            new_value = max(0.0, min(1.0, current + direction * 0.1))
+            if option_name == 'Master Volume':
+                self.options_manager.options['master_volume'] = new_value
+            elif option_name == 'Music Volume':
+                self.options_manager.options['music_volume'] = new_value
+            elif option_name == 'Sound Effects':
+                self.options_manager.options['sfx_volume'] = new_value
+        
+        elif option_name == 'Rotate Speed':
+            current = self.options_manager.options['rotate_speed']
+            new_value = max(math.pi/96, min(math.pi/12, current + direction * (math.pi/96)))
+            self.options_manager.options['rotate_speed'] = new_value
+        
+        elif option_name == 'Gravity':
+            current = self.options_manager.options['gravity']
+            new_value = max(0.005, min(0.5, current + direction * 0.001))
+            self.options_manager.options['gravity'] = new_value
+        
+        elif option_name == 'Jump Power':
+            current = self.options_manager.options['jump_velocity']
+            new_value = max(0.1, min(0.7, current + direction * 0.01))
+            self.options_manager.options['jump_velocity'] = new_value
+
+        # Play test sound for volume changes
+        if option_name in ['Master Volume', 'Music Volume', 'Sound Effects']:
+            self.assets.play_sound('highlight')
+
+    def _get_option_value(self, option_name):
+        if option_name == 'Master Volume':
+            return self.options_manager.options['master_volume']
+        elif option_name == 'Music Volume':
+            return self.options_manager.options['music_volume']
+        elif option_name == 'Sound Effects':
+            return self.options_manager.options['sfx_volume']
+        elif option_name == 'Rotate Speed':
+            return self.options_manager.options['rotate_speed'] / (math.pi/48)
+        elif option_name == 'Gravity':
+            return self.options_manager.options['gravity'] / 0.01
+        elif option_name == 'Jump Power':
+            return self.options_manager.options['jump_velocity'] / 0.3
 
     def _show_instructions(self):
         waiting = True

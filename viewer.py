@@ -9,9 +9,10 @@ from level_manager import LevelManager, GameState
 from menu_manager import MenuManager
 from asset_manager import AssetManager
 from high_score_manager import HighScoreManager
+from options_manager import OptionsManager
 
 class GameViewer:
-    def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager, username: str, high_score_manager: HighScoreManager, total_score: int):
+    def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager, username: str, high_score_manager: HighScoreManager, total_score: int, options_manager: OptionsManager):
         self.settings = settings
         self.level_manager = level_manager
         self.renderer = Renderer(settings, assets)
@@ -22,7 +23,7 @@ class GameViewer:
         self.assets.play_game_music()
         self.return_to_main_menu = False
         self.state = GameState.GAME
-        self.menu = MenuManager(level_manager, assets, high_score_manager, in_game=True)
+        self.menu = MenuManager(level_manager, assets, high_score_manager, options_manager, in_game=True)
         
         # State
         self.running = True
