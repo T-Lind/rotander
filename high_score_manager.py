@@ -2,8 +2,8 @@ import json
 import os
 
 class HighScoreManager:
-    def __init__(self, filename='data/high_scores.json'):
-        self.filename = filename
+    def __init__(self):
+        self.filename = os.path.join(os.getenv('GAME_ROOT'), 'data', 'high_scores.json')
         self.high_scores = self._load_high_scores()
 
     def _load_high_scores(self):

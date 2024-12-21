@@ -8,9 +8,10 @@ class AssetManager:
         self.sounds = {}
         self.sprites = {}
         self.current_music = None
+        self.current_music_file = None  # Track current music file
         
         # Determine base path
-        self.base_path = os.path.join( os.getenv('GAME_ROOT'), 'assets')
+        self.base_path = os.path.join(os.getenv('GAME_ROOT'), 'assets')
         
         if not os.path.exists(self.base_path):
             raise FileNotFoundError(f"Assets directory not found at: {self.base_path}")
@@ -105,14 +106,29 @@ class AssetManager:
     def play_menu_music(self):
         if menu_music := self.sounds.get('menu'):
             self.stop_music()
-            menu_music.play(-1)
+            pygame.mixer.music.load(os.path.join(self.base_path, 'sounds', 'menu.mp3'))
+            pygame.mixer.music.play(-1)
             self.current_music = menu_music
+            self.current_music_file = 'menu'
+            # Set initial volume based on options
+            if hasattr(self, 'options_manager'):
+                volume = self.options_manager.options['master_volume'] * self.options_manager.options['music_volume']
+                pygame.mixer.music.set_volume(volume)
 
     def play_game_music(self):
         if game_music := self.sounds.get('music'):
             self.stop_music()
-            game_music.play(-1)
+            pygame.mixer.music.load(os.path.join(self.base_path, 'sounds', 'music.mp3'))
+            pygame.mixer.music.play(-1)
             self.current_music = game_music
+            self.current_music_file = 'music'
+            # Set initial volume based on options
+            if hasattr(self, 'options_manager'):
+                volume = self.options_manager.options['master_volume'] * self.options_manager.options['music_volume']
+                pygame.mixer.music.set_volume(volume)
 
     def get_sprite(self, name: str) -> Optional[pygame.Surface]:
         return self.sprites.get(name)
+    
+    def set_options_manager(self, options_manager):
+        self.options_manager = options_manager

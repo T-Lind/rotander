@@ -271,6 +271,45 @@ class Renderer:
         
         self.update_display()
 
+    def draw_minimap(self, user_pos, enemies):
+        import numpy as np
+        minimap_width, minimap_height = 150, 150  # You can adjust these base dimensions
+        margin = 10
+        x_pos = self.settings.display.window_size[0] - minimap_width - margin
+        y_pos = margin
+
+        # Draw background with border
+        pygame.draw.rect(self.screen, (50, 50, 50), (x_pos, y_pos, minimap_width, minimap_height))
+        pygame.draw.rect(self.screen, (100, 100, 100), (x_pos, y_pos, minimap_width, minimap_height), 1)
+        
+        center_x = x_pos + minimap_width // 2
+        center_y = y_pos + minimap_height // 2
+        
+        # Use the viewer's zoom level
+        map_scale = 20.0 / self.settings.viewer.minimap_zoom  # Inverse relationship - higher zoom = smaller scale
+        
+        # Draw user at center
+        pygame.draw.circle(self.screen, (0, 255, 0), (center_x, center_y), 5)
+
+        # Draw enemies with zoom factor
+        for enemy in enemies:
+            enemy_pos = np.array(enemy['position'])
+            user_array = np.array(user_pos)
+            relative = enemy_pos - user_array
+            
+            # Scale positions by zoom level
+            ex = int(center_x + relative[0] * map_scale)
+            ey = int(center_y - relative[1] * map_scale)
+            
+            # Only draw if within minimap bounds
+            if (x_pos <= ex <= x_pos + minimap_width and 
+                y_pos <= ey <= y_pos + minimap_height):
+                pygame.draw.circle(self.screen, (255, 0, 0), (ex, ey), 3)
+
+        # Draw zoom level indicator
+        zoom_text = self.font[8].render(f"Zoom: {self.settings.viewer.minimap_zoom:.1f}x", True, (255, 255, 255))
+        self.screen.blit(zoom_text, (x_pos + 5, y_pos + minimap_height + 5))
+
     def draw_level_info(self, level_name: str, level_number: int):
         """Draw level information in top-right corner"""
         text = f"Level {level_number}: {level_name}"

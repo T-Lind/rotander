@@ -9,6 +9,10 @@ from high_score_manager import HighScoreManager
 from options_manager import OptionsManager
 import os
 
+from dotenv import load_dotenv
+# Only used for dev
+load_dotenv()
+
 def main():
     pygame.init()
     # Store original window size
@@ -32,8 +36,9 @@ def main():
     
 
     assets = AssetManager()
-    assets.play_menu_music()
     options_manager = OptionsManager()
+    assets.set_options_manager(options_manager)
+    assets.play_menu_music()
     level_manager = LevelManager()
     high_score_manager = HighScoreManager()
     running = True

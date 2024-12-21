@@ -60,6 +60,12 @@ class GameplaySettings:
         object.__setattr__(self, 'points_decrease_rate', 
                           float(settings_dict.get('points_decrease_rate', 1.0)) if settings_dict else 1.0)
 
+@dataclass(frozen=False)
+class ViewerSettings:
+    minimap_zoom: float = 2.0  # Default zoom level
+    MIN_ZOOM: float = 0.5
+    MAX_ZOOM: float = 5.0
+
 class Settings:
     def __init__(self, config_path: str):
         self.config_path = config_path
@@ -67,6 +73,7 @@ class Settings:
         self.display = self._init_display_settings()
         self.gameplay = GameplaySettings()
         self.movement = MovementSettings()
+        self.viewer = ViewerSettings()
         self.shapes = self.config_data.get('shapes', [])
         self.enemies = self.config_data.get('enemies', [])
 

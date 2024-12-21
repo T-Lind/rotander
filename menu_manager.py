@@ -138,9 +138,6 @@ class MenuManager:
             'Master Volume',
             'Music Volume',
             'Sound Effects',
-            'Rotate Speed',
-            'Gravity',
-            'Jump Power',
             'Back'
         ]
         while waiting:
@@ -197,10 +194,7 @@ class MenuManager:
                                    (bar_x, bar_y, value_width, bar_height))
                     
                     # Value text
-                    if option == 'Rotate Speed':
-                        value_text = f"{value * 48/math.pi:.1f}"
-                    else:
-                        value_text = f"{int(value * 100)}%"
+                    value_text = f"{int(value * 100)}%"
                     text = self.sm_font.render(value_text, True, (255, 255, 255))
                     text_rect = text.get_rect(midleft=(bar_x + bar_width + 10, y_pos))
                     self.screen.blit(text, text_rect)

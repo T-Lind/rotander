@@ -1,8 +1,7 @@
 import numpy as np
 import pygame
 from pygame.locals import *
-from typing import List, Tuple, Dict
-from settings import Settings
+from settings import Settings, ViewerSettings
 from geometry import GeometryHelper
 from renderer import Renderer
 from level_manager import LevelManager, GameState
@@ -188,8 +187,25 @@ class GameViewer:
                 elif event.key == pygame.K_F5 and self.settings.gameplay.debug_mode:
                     self.level_complete = True
                     self.running = False
+
                 if event.key in self.keys_pressed:
                     self.keys_pressed[event.key] = True
+
+                if event.key == pygame.K_k:  # Zoom in
+                    self.settings.viewer.minimap_zoom = min(self.settings.viewer.MAX_ZOOM, self.settings.viewer.minimap_zoom + 0.5)
+                elif event.key == pygame.K_l:  # Zoom out
+                    self.settings.viewer.minimap_zoom = max(self.settings.viewer.MIN_ZOOM, self.settings.viewer.minimap_zoom - 0.5)
+
+                # Control plane angle by i/o
+                if event.key == pygame.K_i:
+                    self.plane_angle = (self.plane_angle + self.settings.movement.rotate_speed) % (2 * np.pi)
+                    self._compute_all_intersections()
+                    self._adjust_user_position_after_rotation()
+                elif event.key == pygame.K_o:
+                    self.plane_angle = (self.plane_angle - self.settings.movement.rotate_speed) % (2 * np.pi)
+                    self._compute_all_intersections()
+                    self._adjust_user_position_after_rotation()
+
             elif event.type == pygame.KEYUP:
                 if event.key in self.keys_pressed:
                     self.keys_pressed[event.key] = False
@@ -454,6 +470,7 @@ class GameViewer:
         if self.level_complete:
             self._handle_level_completion()
         
+        self.renderer.draw_minimap(self.user_pos, self.enemies)
         self.renderer.update_display()
 
     def run(self):
