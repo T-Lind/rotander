@@ -163,7 +163,7 @@ class Renderer:
         coord_text = f"User Position: (X: {user_pos[0]:.2f}, Y: {user_pos[1]:.2f}, Z: {user_pos[2]:.2f})"
         angle_degrees = np.degrees(plane_angle) % 360
         angle_text = f"Plane Angle: {angle_degrees:.1f}°"
-        points_text = f"Points: {points}"
+        points_text = f"Points: {int(points)}"
         min_distance_text = f"Distance to Nearest Enemy: {min_distance_enemy}"
 
         text_surface1 = self.font[8].render(coord_text, True, (255, 255, 255))

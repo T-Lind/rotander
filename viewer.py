@@ -10,6 +10,7 @@ from asset_manager import AssetManager
 from high_score_manager import HighScoreManager
 from options_manager import OptionsManager
 import sys
+from math import pi
 
 class GameViewer:
     def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager, username: str, high_score_manager: HighScoreManager, total_score: int, options_manager: OptionsManager):
@@ -75,6 +76,10 @@ class GameViewer:
 
         self.alarm_playing = False
         self.alarm_distance = 2.0  # Distance threshold for alarm
+
+        self.rotating_left = False
+        self.rotating_right = False
+        self.rotation_speed = pi / 6
 
 
     def _create_enemy_shape(self, enemy_data: dict) -> dict:
@@ -196,19 +201,19 @@ class GameViewer:
                 elif event.key == pygame.K_l:  # Zoom out
                     self.settings.viewer.minimap_zoom = max(self.settings.viewer.MIN_ZOOM, self.settings.viewer.minimap_zoom - 0.5)
 
-                # Control plane angle by i/o
                 if event.key == pygame.K_i:
-                    self.plane_angle = (self.plane_angle + self.settings.movement.rotate_speed) % (2 * np.pi)
-                    self._compute_all_intersections()
-                    self._adjust_user_position_after_rotation()
+                    self.rotating_right = True
                 elif event.key == pygame.K_o:
-                    self.plane_angle = (self.plane_angle - self.settings.movement.rotate_speed) % (2 * np.pi)
-                    self._compute_all_intersections()
-                    self._adjust_user_position_after_rotation()
+                    self.rotating_left = True
 
             elif event.type == pygame.KEYUP:
                 if event.key in self.keys_pressed:
                     self.keys_pressed[event.key] = False
+
+                if event.key == pygame.K_i:
+                    self.rotating_right = False
+                elif event.key == pygame.K_o:
+                    self.rotating_left = False
 
             
             if event.type == MOUSEBUTTONDOWN:
@@ -411,6 +416,18 @@ class GameViewer:
 
     def _update(self):
         dt = 1/60  # Fixed timestep
+        # Add smooth rotation update
+        if self.rotating_right:
+            rotation_amount = (self.rotation_speed * 2 * np.pi * dt)
+            self.plane_angle = (self.plane_angle + rotation_amount) % (2 * np.pi)
+            self._compute_all_intersections()
+            self._adjust_user_position_after_rotation()
+        elif self.rotating_left:
+            rotation_amount = (self.rotation_speed * 2 * np.pi * dt)
+            self.plane_angle = (self.plane_angle - rotation_amount) % (2 * np.pi)
+            self._compute_all_intersections()
+            self._adjust_user_position_after_rotation()
+
         if not self.level_complete:
             self._update_physics()
             self._check_fall_condition()

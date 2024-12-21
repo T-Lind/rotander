@@ -10,7 +10,7 @@ from options_manager import OptionsManager
 import os
 
 from dotenv import load_dotenv
-# Only used for dev
+# Only used for dev, comment out for prod
 load_dotenv()
 
 def main():
