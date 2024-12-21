@@ -7,6 +7,7 @@ from options_manager import OptionsManager
 from settings import MovementSettings
 import os
 import math
+import sys
 
 class MenuManager:
     def __init__(self, level_manager: LevelManager, assets: AssetManager, high_score_manager: HighScoreManager, options_manager: OptionsManager, in_game=False):
@@ -57,7 +58,7 @@ class MenuManager:
             if event.type == pygame.QUIT:
                 self.running = False
                 pygame.quit()
-                exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.resume_game = True
@@ -105,7 +106,7 @@ class MenuManager:
                 if event.type == pygame.QUIT:
                     self.running = False
                     pygame.quit()
-                    exit()
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         self.selected_index = (self.selected_index - 1) % len(self.options)
@@ -125,7 +126,7 @@ class MenuManager:
                             self._show_high_scores()
                         elif self.options[self.selected_index] == 'Exit':
                             pygame.quit()
-                            exit()
+                            sys.exit()
 
             self._render_main_menu()
             clock.tick(60)
@@ -146,7 +147,7 @@ class MenuManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         waiting = False
@@ -271,7 +272,7 @@ class MenuManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.assets.play_sound('select')
@@ -331,7 +332,7 @@ class MenuManager:
                     "Controls:",
                     "A/D - Move left/right",
                     "SPACE/W - Jump",
-                    "Mouse Wheel - Rotate plane",
+                    "Mouse Wheel - Rotate plane about player",
                     "ESC - Pause game",
                     "",
                     "Gameplay:",
@@ -363,7 +364,7 @@ class MenuManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_ESCAPE, pygame.K_RETURN, pygame.K_SPACE):
                         self.assets.play_sound('select')
@@ -393,7 +394,7 @@ class MenuManager:
                 self.screen.blit(name_text, name_rect)
                 
                 # Score
-                score_text = self.font.render(str(score), True, (255, 255, 255))
+                score_text = self.font.render(str(int(score)), True, (255, 255, 255))
                 score_rect = score_text.get_rect(x=self.screen.get_width() // 2 + 100, centery=y_pos)
                 self.screen.blit(score_text, score_rect)
                 
@@ -448,7 +449,7 @@ class MenuManager:
                         if event.type == pygame.QUIT:
                             self.running = False
                             pygame.quit()
-                            exit()
+                            sys.exit()
                         elif event.type == pygame.KEYDOWN:
                             if event.key == pygame.K_RETURN:
                                 self.assets.play_sound('select')
@@ -477,7 +478,7 @@ class MenuManager:
             if event.type == pygame.QUIT:
                 self.running = False
                 pygame.quit()
-                exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     self.selected_index = (self.selected_index - 1) % len(self.options)

@@ -10,6 +10,7 @@ from menu_manager import MenuManager
 from asset_manager import AssetManager
 from high_score_manager import HighScoreManager
 from options_manager import OptionsManager
+import sys
 
 class GameViewer:
     def __init__(self, settings: Settings, level_manager: LevelManager, assets: AssetManager, username: str, high_score_manager: HighScoreManager, total_score: int, options_manager: OptionsManager):
@@ -130,7 +131,7 @@ class GameViewer:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                         waiting = False
@@ -180,7 +181,7 @@ class GameViewer:
                 self.running = False
                 self.high_score_manager.add_score(self.username, self.total_score + self.points)
                 pygame.quit()
-                exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self._pause_game()

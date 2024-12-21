@@ -8,9 +8,10 @@ class AssetManager:
         self.sounds = {}
         self.sprites = {}
         self.current_music = None
-        self.base_path = os.path.join(os.path.dirname(__file__), 'assets')
         
-        # Verify directory structure
+        # Determine base path
+        self.base_path = os.path.join( os.getenv('GAME_ROOT'), 'assets')
+        
         if not os.path.exists(self.base_path):
             raise FileNotFoundError(f"Assets directory not found at: {self.base_path}")
             
@@ -18,6 +19,10 @@ class AssetManager:
         if not os.path.exists(sounds_path):
             raise FileNotFoundError(f"Sounds directory not found at: {sounds_path}")
             
+        art_path = os.path.join(self.base_path, 'art')
+        if not os.path.exists(art_path):
+            raise FileNotFoundError(f"Art directory not found at: {art_path}")
+
         self._init_fonts()
         self._init_sounds()
         self._init_sprites()
@@ -25,12 +30,13 @@ class AssetManager:
         
     def _init_fonts(self):
         pygame.font.init()
+        font_path = os.path.join(self.base_path, 'fonts', 'pixel.ttf')
         self.fonts = {
-            'pixel_8': pygame.font.Font(os.path.join(self.base_path, 'fonts', 'pixel.ttf'), 8),
-            'pixel_16': pygame.font.Font(os.path.join(self.base_path, 'fonts', 'pixel.ttf'), 16),
-            'pixel_24': pygame.font.Font(os.path.join(self.base_path, 'fonts', 'pixel.ttf'), 24),
-            'pixel_48': pygame.font.Font(os.path.join(self.base_path, 'fonts', 'pixel.ttf'), 48),
-            'pixel_64': pygame.font.Font(os.path.join(self.base_path, 'fonts', 'pixel.ttf'), 64),
+            'pixel_8': pygame.font.Font(font_path, 8),
+            'pixel_16': pygame.font.Font(font_path, 16),
+            'pixel_24': pygame.font.Font(font_path, 24),
+            'pixel_48': pygame.font.Font(font_path, 48),
+            'pixel_64': pygame.font.Font(font_path, 64),
         }
         
     def _init_sounds(self):

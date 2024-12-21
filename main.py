@@ -7,12 +7,16 @@ from menu_manager import MenuManager
 from asset_manager import AssetManager
 from high_score_manager import HighScoreManager
 from options_manager import OptionsManager
+import os
 
 def main():
     pygame.init()
     # Store original window size
     windowed_size = (800, 600)
     screen = pygame.display.set_mode(windowed_size, pygame.RESIZABLE)
+    icon_path = os.path.join(os.getenv('GAME_ROOT'), 'assets', 'art', 'icon.png')
+    icon = pygame.image.load(icon_path)
+    pygame.display.set_icon(icon)
     pygame.display.set_caption("Rotander")
     
     is_fullscreen = False
