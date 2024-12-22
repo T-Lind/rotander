@@ -4,6 +4,7 @@ from typing import List, Tuple, Optional
 from scipy.spatial import ConvexHull
 from settings import Settings
 from asset_manager import AssetManager
+from geometry import GeometryHelper
 
 class Renderer:
     def __init__(self, settings: Settings, assets: AssetManager):

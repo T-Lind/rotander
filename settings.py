@@ -46,7 +46,7 @@ class MovementSettings:
             self.user_height_pixels / pixels_per_unit
         )
     
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class GameplaySettings:
     fall_threshold: float = -10.0
     spawn_position: Tuple[float, float, float] = (0.0, 0.0, 0.0)
@@ -54,11 +54,15 @@ class GameplaySettings:
     target_pulse_rate: float = 0.2
     target_pulse_magnitude: float = 0.6
     points_decrease_rate: float = 1.0  # Default rate if not specified in level
+    points: float = 10000.0
     debug_mode: bool = True
 
     def __init__(self, settings_dict: dict = None):
+        print("SETTINGS DICT", settings_dict)
         object.__setattr__(self, 'points_decrease_rate', 
                           float(settings_dict.get('points_decrease_rate', 1.0)) if settings_dict else 1.0)
+        object.__setattr__(self, 'points',   # TODO NOT WORKING
+                    float(settings_dict.get('points', 10000.0)) if settings_dict else 10000.0)
 
 @dataclass(frozen=False)
 class ViewerSettings:
@@ -71,7 +75,7 @@ class Settings:
         self.config_path = config_path
         self.config_data = self._load_config()
         self.display = self._init_display_settings()
-        self.gameplay = GameplaySettings()
+        self.gameplay = GameplaySettings(self.config_data.get('settings', {}))
         self.movement = MovementSettings()
         self.viewer = ViewerSettings()
         self.shapes = self.config_data.get('shapes', [])

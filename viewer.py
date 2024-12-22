@@ -69,8 +69,7 @@ class GameViewer:
         self.target_pulse_time = 0
 
         self.total_score = total_score
-        self.points = 10000
-        self.points_decrease_rate = 1
+        self.points = self.settings.gameplay.points
         self.jump_penalty = 100
         self.death_penalty = 1500
 

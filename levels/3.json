@@ -111,6 +111,6 @@
         "origin_color": [255, 0, 0],
         "user_color": [255, 192, 0],
         "default_shape_color": [100, 200, 255],
-        "points_decrease_rate": 5.0
+        "points_decrease_rate": 2.0
     }
 }
