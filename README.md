@@ -1,8 +1,9 @@
 # Rotander
 
 A unique 2D-meets-3D platforming adventure where you navigate through rotating geometric landscapes.
+![RotanderDemo.gif](readme-assets/RotanderDemo.gif)
 
-![RotanderDemo.mp4](readme-assets/RotanderDemo.mp4)
+(Note that GIF does not support sound. But there are sound effects.)
 
 ## About
 
