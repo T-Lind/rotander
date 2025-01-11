@@ -2,6 +2,8 @@
 
 A unique 2D-meets-3D platforming adventure where you navigate through rotating geometric landscapes.
 
+![RotanderDemo.mp4](readme-assets/RotanderDemo.mp4)
+
 ## About
 
 You are a lost 2D explorer in a 3D world, stranded far from home. Your mission is to reach the golden targets while navigating through increasingly difficult geometric landscapes that rotate at your command. But beware! Your energy depletes with time, each jump costs precious points, and mysterious enemies pursue you through the dimensions.
