@@ -52,7 +52,7 @@ Requirements:
 To build:
 ```powershell
 # Clone the repository
-git clone [repository-url]
+git clone https://github.com/T-Lind/rotander.git
 
 # Build executable
 compile.bat
